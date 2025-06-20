@@ -1,0 +1,92 @@
+/* body {
+    background-color: #e0e0e3;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+} */
+
+.admin-login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 640px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    background: linear-gradient(135deg, #434343 0%, #6177f4 100%);
+}
+
+.admin-login-box {
+    background: linear-gradient(135deg, #6177f4 0%, #434343 100%);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    margin:80px;
+    /* width: 100%; */
+    width: 500px;
+    max-width: 600px;
+    text-align: center;
+}
+
+.admin-login-header {
+    background: linear-gradient(135deg, #6177f4 0%, #434343 100%);
+    padding: 1.5rem;
+    margin: -2rem -2rem 2rem -2rem;
+    border-radius: 15px 15px 0 0;
+    justify-content: space-between;
+}
+
+.brand-name {
+    font-size: 2.5rem;
+    font-weight: 400;
+    color: #e6e2e2;
+    font-family: 'Comic Sans MS', cursive, sans-serif; /* A font similar to the image */
+}
+
+.admin-login-title {
+    /* display: flex;
+    align-items: center; */
+    font-size: 2rem;
+    font-weight: 600;
+    color: #faf7f7;
+}
+
+.admin-login-prompt {
+    color: #e1dede;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+}
+
+.admin-login-form input {
+    width: 90%;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    font-size: 1rem;
+}
+
+.admin-login-form input::placeholder {
+    color: #aaa;
+}
+
+.admin-login-button {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    background-color:rgb(67, 65, 65); 
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 1rem;
+}
+
+.admin-login-button:hover {
+    background-color: #605e5e;
+}
