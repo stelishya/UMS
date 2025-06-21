@@ -62,10 +62,11 @@ const successStyle = { backgroundColor: 'green', color: '#fff' };
           </div>
 
         <form onSubmit={handleLogin} className='login-form'>
-          <div className="form-group">
-            <label className='login-label' htmlFor="email">Email</label>
+          <div className="login-form-group">
+            <label className='login-label' style={{color:"#faf9f9"}} htmlFor="email">Email</label>
             <div className="input-with-icon">
             <input 
+              style={{backgroundColor:"#faf9f9"}} 
               id="email"
               type="email" 
               placeholder="Enter Your Email" 
@@ -76,11 +77,12 @@ const successStyle = { backgroundColor: 'green', color: '#fff' };
             </div>
           </div>
 
-          <div className="form-group">
+          <div className="login-form-group">
             {/* <div className="password-label-row"> */}
-              <label className='login-label' htmlFor="password">Password</label>
+              <label className='login-label' style={{color:"#faf9f9"}}  htmlFor="password">Password</label>
               <div className="input-with-icon">
               <input 
+                style={{backgroundColor:"#faf9f9"}} 
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Enter Your Password" 

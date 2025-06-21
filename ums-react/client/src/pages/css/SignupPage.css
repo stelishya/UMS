@@ -1,3 +1,9 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+}
 .container {
     width: 100%;
     min-height: 100vh;
@@ -5,24 +11,25 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 30px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   }
   
   /* Signup card */
   .signup-card {
     background: linear-gradient(135deg, #6177f4 0%, #434343 100%);
-    padding: 2.5rem;
+    padding: 1.5rem;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
+    max-width: 450px;
+    margin: 1rem auto;
   }
   
   /* Header styles */
   .signup-header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
   }
   
   .signup-header h2 {
@@ -33,7 +40,7 @@
   }
   
   .signup-header p {
-    color: #c1c0c0;
+    color: #eeeded;
     font-size: 0.95rem;
     margin: 0;
   }
@@ -42,13 +49,13 @@
   .signup-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    /* gap: 0.3rem; */
   }
   
   .name-fields {
     display: flex;
-    gap: 1rem;
-    width: 100%;
+    gap: 0.5rem;
+    width: 95%;
   }
   
   .name-fields .form-group {
@@ -62,8 +69,8 @@
   }
   
   .form-group label {
-    font-size: 1rem;
-    font-weight: 500;
+    /* font-size: 1rem;
+    font-weight: 900; */
     color: #d2d1d1;
   }
   
@@ -75,7 +82,7 @@
   .form-group input {
     background: rgba(255, 255, 255, 0.553);
     color: #474646;
-    width: 85%;
+    width: 75%;
     padding: 0.75rem 2.5rem 0.75rem 1rem;
     border: 1px solid #ddd;
     border-radius: 50px;

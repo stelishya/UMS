@@ -53,7 +53,7 @@ export default function SignupPage() {
       window.location.href = '/login';
       toast.success('Registration successful! Please log in.', {...toastConfig,style:successStyle});
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Registration failed';
+      const errorMessage = err.response?.data?.message || 'Registration failed. Error!';
       dispatch(registerFailure(err.response?.data?.message || 'Registration failed'));
       toast.error(errorMessage,{...toastConfig,style:errorStyle});
     }
@@ -70,8 +70,9 @@ export default function SignupPage() {
         <form onSubmit={handleSubmit} className='signup-form'>
           <div className="name-fields">
             <div className="form-group">
-              <label htmlFor="name">Name</label>
+              <label style={{color:"#faf9f9",fontSize:"1rem",fontWeight:"700"}} htmlFor="name">Name</label>
               <input 
+                style={{backgroundColor:"#faf9f9"}} 
                 id="name"
                 type="text" 
                 name="name"
@@ -97,8 +98,9 @@ export default function SignupPage() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label style={{color:"#faf9f9",fontSize:"1rem",fontWeight:"700"}} htmlFor="email">Email</label>
             <input 
+              style={{backgroundColor:"#faf9f9",width:"95%"}} 
               id="email"
               type="email" 
               name="email"
@@ -110,9 +112,10 @@ export default function SignupPage() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label style={{color:"#faf9f9",fontSize:"1rem",fontWeight:"700"}} htmlFor="password">Password</label>
             <div className="input-with-icon">
               <input 
+                style={{backgroundColor:"#faf9f9",width:"95%"}} 
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 name="password"
@@ -133,9 +136,10 @@ export default function SignupPage() {
 
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <label style={{color:"#faf9f9",fontSize:"1rem",fontWeight:"700"}} htmlFor="confirmPassword">Confirm Password</label>
             <div className="input-with-icon">
               <input 
+                style={{backgroundColor:"#faf9f9",width:"95%"}} 
                 id="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
                 name="confirmPassword"
