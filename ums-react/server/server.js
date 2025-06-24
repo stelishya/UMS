@@ -5,7 +5,7 @@ import authRoute from './routes/authRoute.js';
 import userRoute from './routes/userRoute.js';
 import path from 'path';
 import cors from 'cors';
-
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 connectDB();
@@ -17,6 +17,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
+app.use(cookieParser());
 
 app.use('/uploads', express.static('uploads'));
 

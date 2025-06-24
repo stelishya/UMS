@@ -20,27 +20,41 @@ export const uploadProfileImage = async (req, res) => {
 
 // Update Profile
 export const updateProfile = async (req, res) => {
-  const user = await User.findById(req.user.id);
-  if (!user) return res.status(404).json({ message: 'User not found' });
-
-  user.name = req.body.name || user.name;
-  user.email = req.body.email || user.email;
-  user.profileImage = req.body.profileImage || user.profileImage;
-
-
-  // await user.save();
-  // res.json({ message: 'Profile updated' });
-
-  const updatedUser = await user.save();
-  res.json({
-    message: 'Profile updated',
-    user: {
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      profileImage: updatedUser.profileImage,
+  try {
+    console.log('--- Update Profile Request ---');
+    console.log('Request Body:', req.body);
+    console.log('Request User:', req.user);
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+  
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    if (req.body.profileImage) {
+      user.profileImage = req.body.profileImage;
     }
-  });
+  
+    // await user.save();
+    // res.json({ message: 'Profile updated' });
+  
+    const updatedUser = await user.save();
+    console.log("updatedUser in updateProfile in userController.jsx : ",updatedUser)
+    res.json({
+      // message: 'Profile updated',
+      // user: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        profileImage: updatedUser.profileImage,
+      // }
+    });
+    
+  } catch (error) {
+    console.log("error in updateProfile in userController.jsx : ",error)
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'Email already exists!' });
+    }
+    res.status(500).json({ message: 'Server error, please try again later.' });
+  }
 };
 
 // Admin: Get all users
@@ -60,87 +74,82 @@ export const getAllUsers = async (req, res) => {
 
 
 export const createUser = async (req, res) => {
-  const { name, email, password } = req.body;
-
-  const userExists = await User.findOne({ email });
-
-  if (userExists) {
-    res.status(400);
-    throw new Error('User already exists');
-  }
-
-  const user = await User.create({
-    name,
-    email,
-    password,
-  });
-
-  if (user) {
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      isAdmin: user.isAdmin,
+  try {
+    const { name, email, password ,profileImage} = req.body;
+  
+    const userExists = await User.findOne({ email });
+  
+    if (userExists) {
+      res.status(400).json({message:'User already exists'});
+      // throw new Error('User already exists');
+    }
+  
+    const user = await User.create({
+      name,
+      email,
+      password,
+      profileImage,
     });
-  } else {
-    res.status(400);
-    throw new Error('Invalid user data');
+    
+    if (user) {
+      return res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        profileImage: user.profileImage,
+      });
+    } else {
+      return res.status(400).json({message:'Invalid user data'});
+      // throw new Error('Invalid user data');
+    }
+  } catch (error) {
+    console.log("error in createUser in userController.jsx : ",error)
+    return res.status(500).json({ message: 'Server error while creating user' });
   }
+
 };
 
 // Admin: Update user
 export const updateUser = async (req, res) => {
-  const user = await User.findById(req.params.id);
-  if (!user) return res.status(404).json({ message: 'User not found' });
-
-  user.name = req.body.name || user.name;
-  user.email = req.body.email || user.email;
-  if (req.body.isAdmin !== undefined) {
-    user.isAdmin = req.body.isAdmin;
-  }
-  // user.role = req.body.role || user.role;
-
-  const updatedUser= await user.save();
-  res.json(updatedUser);
-};
-
-// Admin: Delete user
-export const deleteUser = async (req, res) => {
-  const user = await User.findById(req.params.id);
-  if (!user) return res.status(404).json({ message: 'User not found' });
-
-  // await user.remove();
-  await user.deleteOne();
-  res.json({ message: 'User deleted' });
-};
-
-//Admin : Login
-export const loginAdmin = async (req,res)=>{
-  const {email,password} = req.body;
-  const user = await User.findOne({email})
-  console.log("email and password in loginAdmin in userController.jsx : ",email,password)
-  console.log("user in loginAdmin",user)
-
-  if(user && (await user.matchPassword(password))){
-    console.log("user and password match")
-    if(user.isAdmin){
-      console.log("user is admin")
-      res.json({
-        _id:user._id,
-        name:user.name,
-        email:user.email,
-        isAdmin:user.isAdmin,
-        profileImage:user.profileImage,
-        token:generateToken(user._id)
-      })
-    }else{
-      console.log("user is not admin")
-      console.log("response in loginAdmin : ",res)
-      res.status(401).json({message:'Not authorized as an admin'})
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+  
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    user.profileImage = req.body.profileImage || user.profileImage;
+    if (req.body.isAdmin !== undefined) {
+      user.isAdmin = req.body.isAdmin;
     }
-  }else{
-    console.log("user and password do not match")
-    console.log("response in loginAdmin : ",res)
-    res.status(401).json({message:'Invalid email or password'});
+    // user.role = req.body.role || user.role;
+  
+    const updatedUser= await user.save();
+    res.json(updatedUser);
+    
+  } catch (error) {
+    console.error('Error updating user:', error);
+    // handle duplicate email error
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'Email already in use.' });
+    }
+    res.status(500).json({ message: 'Server error while updating user.' });
   }
-}
+};
+
+// admin - delete user
+export const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+  
+    // await user.remove();
+    await user.deleteOne();
+    res.json({ message: 'User deleted' });
+    
+  } catch (error) {
+    console.error('Error deleting user in deleteUser in userController.jsx:', error);
+    res.status(500).json({ message: 'Server error while deleting user.' });
+  }
+};
+

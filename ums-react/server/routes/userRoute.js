@@ -3,7 +3,6 @@ import {
   getProfile,
   uploadProfileImage,
   updateProfile,
-  loginAdmin,
   getAllUsers,
   createUser,
   updateUser,
@@ -21,7 +20,6 @@ router.post('/upload', protect, upload.single('profileImage'), uploadProfileImag
 router.patch('/profile', protect, updateProfile);
 
 // Admin
-router.post('/admin-login',loginAdmin)
 router.post('/',protect,adminOnly,createUser)
 router.get('/', protect, adminOnly, getAllUsers);
 router.put('/:id', protect, adminOnly, updateUser);

@@ -1,17 +1,39 @@
+import {useEffect} from 'react'
 import {Link} from 'react-router-dom'
 import './css/HomePage.css';
-import { useAuth } from '../context/AuthContext';
-import Swal from 'sweetalert2';
+// import { useAuth } from '../context/AuthContext';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../features/auth/authSlice';
+import { useNavigate } from 'react-router-dom';
 
+import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
+
+const toastConfig = {
+  position: "top-right",
+  autoClose: 3000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "dark"
+};
+const successStyle = { backgroundColor: 'green', color: '#fff' };
+const errorStyle   = { backgroundColor: 'red',   color: '#fff' };
 function HomePage() {
-    const {user,logout} = useAuth();
-    // const userName = user?.name || 'Guest';
+    // const {user,logout} = useAuth();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const {user} = useSelector((state) => state.auth);
+
+    useEffect(() => {
+      if (!user) {
+          navigate('/login');
+      }
+  }, [user, navigate]);
 
     const handleLogout = () => {
-      // if (window.confirm('Are you sure you want to log out?')) {
-      //   logout();
-      //   window.location.href = '/login';
-      // }
       Swal.fire({
         title: 'Are you sure?',
         text: "You will be logged out!",
@@ -22,8 +44,10 @@ function HomePage() {
         confirmButtonText: 'Yes, log me out!'
       }).then((result) => {
         if (result.isConfirmed) {
-          logout();
-          window.location.href = '/login';
+          dispatch(logout());
+          toast.success('Logged out successfully', { ...toastConfig, style: successStyle });
+          navigate('/login');
+          // window.location.href = '/login';
         }
       });
     };

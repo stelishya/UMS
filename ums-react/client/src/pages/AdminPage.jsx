@@ -1,24 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useDispatch,useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { logout } from '../features/auth/authSlice';
+import axiosInstance from '../utils/axiosInstance';
+// import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import './css/AdminPage.css';
 import { FaSearch,FaPlus, FaUserCircle, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
 import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate } from 'react-router-dom';
 
 function AdminPage() {
-    const { user, token ,logout} = useAuth();
+    // const { user, token ,logout} = useAuth();
     const navigate = useNavigate()
+    const dispatch = useDispatch()
+    const {user,accessToken} = useSelector((state)=>state.auth)
     const [users, setUsers] = useState([]);
-    // const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const usersPerPage = 8;
 
-    console.log("token in AdminPage: ",token)
-
+    // console.log("token in AdminPage: ",token)
+    
+    //toastify
     const toastConfig = {
         position: "top-right",
         autoClose: 3000,
@@ -28,47 +33,63 @@ function AdminPage() {
         draggable: true,
         progress: undefined,
         theme: "dark"
-      };
-      const successStyle = { backgroundColor: 'green', color: '#fff' };
+    };
+    const successStyle = { backgroundColor: 'green', color: '#fff' };
     const errorStyle   = { backgroundColor: 'red',   color: '#fff' };
 
-    const handleLogout = () => {
-        logout();
-        navigate('/admin-login');
-      };
     useEffect(() => {
-        console.log("hello")
+        console.log('User object in AdminPage:', user);
+    }, [user]);
+
+    useEffect(() => {
+        if (!user || !user.isAdmin) {
+            navigate('/admin-login');
+        }
+    }, [user, navigate]);
+
+    //handlers
+    const handleLogout = async() => {
+        const result = await Swal.fire({
+            title: 'Are you sure you want to log out?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, log out!'
+        });
+        if (result.isConfirmed) {
+            dispatch(logout());
+            toast.success('Logged out successfully', { ...toastConfig, style: successStyle });
+            navigate('/admin-login');
+        }
+    };
+    useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await axios.get(`/api/users?search=${searchTerm}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                console.log("response.data in AdminPage: ",response.data)
-                setUsers(response.data);
-                // setFilteredUsers(response.data);
-                // if(searchTerm === ''){
-                //     toast.success('Users fetched successfully!', {...toastConfig,style:successStyle});
-                // }
+                const { data } = await axiosInstance.get(`/users?search=${searchTerm}`);
+                setUsers(data);
+                // const response = await axios.get(`/api/users?search=${searchTerm}`, {
+                //     headers: {
+                //         Authorization: `Bearer ${token}`,
+                //     },
+                // });
+                // console.log("response.data in AdminPage: ",response.data)
+                // setUsers(response.data);
+                
             } catch (error) {
                 console.error('Failed to fetch users:', error);
                 toast.error(error.message || 'Failed to fetch users', {...toastConfig,style:errorStyle});
             }
         };
         const handler = setTimeout(() => {
-            if (token) {
+            if (accessToken) {
                 fetchUsers();
             }
         }, 300);
         return ()=>{
             clearTimeout(handler)
         }
-        // if (token) {
-        //     console.log("hii")
-        //     fetchUsers();
-        // }
-    }, [searchTerm,token]);
+    }, [searchTerm,accessToken]);
 
     // useEffect(() => {
     //     const results = users.filter(u =>
@@ -91,9 +112,10 @@ function AdminPage() {
         });
         if (result.isConfirmed) {
             try {
-                await axios.delete(`/api/users/${id}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                await axiosInstance.delete(`/users/${id}`);
+                // await axios.delete(`/api/users/${id}`, {
+                //     headers: { Authorization: `Bearer ${token}` },
+                // });
                     setUsers(users.filter(u => u._id !== id));
                     toast.success('User deleted successfully!', { ...toastConfig, style: successStyle });
                 } catch (error) {
@@ -116,7 +138,7 @@ function AdminPage() {
             showCancelButton: true,
             preConfirm:()=>{
                     const name = document.getElementById('swal-input1').value;
-                    const email = document.getElementById('swal-input2').value;
+                    const email = document.getElementById('swal-input2').value.toLowerCase();
                     const password = document.getElementById('swal-input3').value;
                     const confirmPassword = document.getElementById('swal-input4').value;
 
@@ -128,22 +150,24 @@ function AdminPage() {
                         Swal.showValidationMessage('Passwords do not match.', 'error');
                         return false;
                     }
-                    return [name,email,password]
+                    return {name,email,password}
             }
       });
 
       if(formValues){
-        const [name,email,password] = formValues;
+        const {name,email,password} = formValues;
         console.log("name in AdminPage: ",name)
         console.log("email in AdminPage: ",email)
         console.log("password in AdminPage: ",password)
         try {
-            const {data:newUser} = await axios.post('/api/users',
-                {name,email,password},
-                {
-                    headers:{Authorization:`Bearer ${token}`}
-                }
-            )
+            // const {data:newUser} = await axios.post('/api/users',
+            //     {name,email,password},
+            //     {
+                //         headers:{Authorization:`Bearer ${token}`}
+                //     }
+                // )
+                
+            const { data: newUser } = await axiosInstance.post('/users', formValues);
             setUsers([...users,newUser])
             toast.success('User created successfully!', {...toastConfig,style:successStyle})
         } catch (error) {
@@ -162,23 +186,25 @@ function AdminPage() {
             focusConfirm: false,
             showCancelButton: true,
             preConfirm: () => {
-                return [
-                    document.getElementById('swal-input1').value,
-                    document.getElementById('swal-input2').value
-                ]
+                return {
+                    name:document.getElementById('swal-input1').value,
+                    email:document.getElementById('swal-input2').value.toLowerCase()
+                }
             }
         });
     
         if (formValues) {
-            const [name, email] = formValues;
+            const {name, email} = formValues;
             try {
-                const { data: updatedUser } = await axios.put(
-                    `/api/users/${user._id}`,
-                    { name, email },
-                    {
-                        headers: { Authorization: `Bearer ${token}` }
-                    }
-                );
+                // const { data: updatedUser } = await axios.put(
+                //     `/api/users/${user._id}`,
+                //     { name, email },
+                //     {
+                //         headers: { Authorization: `Bearer ${token}` }
+                //     }
+                // );
+
+                const { data: updatedUser } = await axiosInstance.put(`/users/${user._id}`, formValues);
                 setUsers(users.map(u => (u._id === user._id ? updatedUser : u)));
                 toast.success('User updated successfully!', { ...toastConfig, style: successStyle });
             } catch (error) {
@@ -189,15 +215,12 @@ function AdminPage() {
     }
 
 
-    // Pagination logic
+    // pagination logic
     const indexOfLastUser = currentPage * usersPerPage;
     const indexOfFirstUser = indexOfLastUser - usersPerPage;
     const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
     const totalPages = Math.ceil(users.length / usersPerPage);
-    // console.log("usersPerPage in AdminPage: ",usersPerPage)
-    // console.log("currentPage in AdminPage: ",currentPage)
-    // console.log("indexOfFirstUser in AdminPage: ",indexOfFirstUser)
-    // console.log("indexOfLastUser in AdminPage: ",indexOfLastUser)
+
     console.log("currentUsers in AdminPage: ",currentUsers)
     // console.log("totalPages in AdminPage: ",totalPages)
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -234,7 +257,8 @@ function AdminPage() {
                         <span className="admin-role">Admin</span>
                     </div>
                     {user?.profileImage ? (
-                        <img src={user.profileImage} alt="Admin" className="admin-avatar" />
+                        // <img src={user.profileImage} alt="Admin" className="admin-avatar" />
+                        <img src={`http://localhost:4006${user.profileImage}`} alt="Admin" className="admin-avatar" />
                     ) : (
                         <FaUserCircle size={40} className="admin-avatar-default" />
                     )}
@@ -275,7 +299,7 @@ function AdminPage() {
 
             <footer className="pagination-footer">
                 <span className="pagination-info">
-                    Showing {Math.min(indexOfFirstUser + 1, users.length)} - {Math.min(indexOfLastUser, users.length)} of {users.length} customers
+                    Showing {Math.min(indexOfFirstUser + 1, users.length)} - {Math.min(indexOfLastUser, users.length)} of {users.length} users
                 </span>
                 <div className="pagination-controls">
                     {currentPage > 1 && (

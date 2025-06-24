@@ -10,6 +10,9 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
+    background-color: #6890f5;
+    padding: 1rem;
+    border-radius: 10px;
 }
 
 .admin-header h1 {
@@ -99,12 +102,12 @@
 
 .admin-name {
     font-weight: 600;
-    color: #333;
+    color: #3852f9;
 }
 
 .admin-role {
     font-size: 0.9rem;
-    color: #777;
+    color: #1f1e1e;
 }
 
 .admin-avatar {

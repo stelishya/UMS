@@ -1,6 +1,10 @@
 import React, { useState,useEffect,useRef } from 'react';
-import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch,useSelector } from 'react-redux';
+import { updateProfile } from '../features/auth/authSlice';
+import { uploadProfileImage } from '../features/auth/authAPI';
+
+// import { useAuth } from '../context/AuthContext';
 import {IoArrowBack} from 'react-icons/io5';
 import './css/ProfilePage.css';
 import {toast} from 'react-toastify';
@@ -10,8 +14,11 @@ import 'react-toastify/dist/ReactToastify.css';
 
 
 function ProfilePage() {
-  const { user,updateProfile } = useAuth();
+  // const { user,updateProfile } = useAuth();
   const navigate = useNavigate();
+  const dispatch = useDispatch()
+  const { user, loading } = useSelector((state) => state.auth);
+
 //   const [isEditing, setIsEditing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [profileImage, setProfileImage] = useState('./default_profile.webp');
@@ -72,35 +79,51 @@ function ProfilePage() {
           };
 
           console.log("userData in ProfilePage: ",userData)
-        if (fileInputRef.current.files[0]) {
-            const formData = new FormData();
-            formData.append('profileImage', fileInputRef.current.files[0]);
+        if (fileInputRef.current && fileInputRef.current.files[0]) {
+            const imageFormData = new FormData();
+            imageFormData.append('profileImage', fileInputRef.current.files[0]);
+            console.log("imageFormData in ProfilePage: ",imageFormData)
             
-            const imageResponse = await fetch('http://localhost:4006/api/users/upload', {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-              },
-              body: formData
-            });
-            console.log("imageResponse in ProfilePage: ",imageResponse)
-            if (!imageResponse.ok) {
-              throw new Error('Failed to upload image');
-            }
-      
-            const imageResult = await imageResponse.json();
+            const imageResult = await uploadProfileImage(imageFormData);
             console.log("imageResult in ProfilePage: ",imageResult)
-            // setProfileImage(imageResult.profileImage);
-            setProfileImage('http://localhost:4006'+imageResult.profileImage);
-            userData.profileImage = imageResult.profileImage;
+            userData.profileImage = imageResult.profileImage; 
+        }
+          //   const imageResponse = await fetch('http://localhost:4006/api/users/upload', {
+          //     method: 'POST',
+          //     headers: {
+          //       'Authorization': `Bearer ${localStorage.getItem('token')}`
+          //     },
+          //     body: formData
+          //   });
+          //   console.log("imageResponse in ProfilePage: ",imageResponse)
+          //   if (!imageResponse.ok) {
+          //     throw new Error('Failed to upload image');
+          //   }
+      
+          //   const imageResult = await imageResponse.json();
+          //   console.log("imageResult in ProfilePage: ",imageResult)
+          //   // setProfileImage(imageResult.profileImage);
+          //   setProfileImage('http://localhost:4006'+imageResult.profileImage);
+          //   userData.profileImage = imageResult.profileImage;
 
-          }else{
-            userData.profileImage=profileImage;
-          }
+          // }else{
+          //   userData.profileImage=profileImage;
+          // }
 
-      await updateProfile(userData);
-      setIsModalOpen(false);
-      toast.success('Profile updated successfully!', {...toastConfig,style:successStyle});
+      dispatch(updateProfile(userData))
+      .unwrap() 
+      .then(()=>{
+        setIsModalOpen(false);
+        toast.success('Profile updated successfully!', {...toastConfig,style:successStyle});
+            })
+      .catch((error)=>{
+        console.log("error in ProfilePage.jsx : ",error)
+        toast.error(error || 'Failed to update profile - dispatch', {...toastConfig,style:errorStyle});
+        setFormData(curr=>({
+          ...curr,
+          email:user.email,
+        }))
+      })
     } catch (error) {
       console.error('Error updating profile:', error);
       toast.error(error.message || 'Failed to update profile', {...toastConfig,style:errorStyle});
